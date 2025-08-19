@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Weather Index Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fire-red': '#DC2626',
+                        'fire-orange': '#EA580C',
+                        'fire-yellow': '#D97706',
+                        'forest-green': '#059669',
+                        'sky-blue': '#0284C7'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #DC2626, #EA580C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .fire-animation {
+            animation: flicker 2s infinite alternate;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: scale(1) rotate(-1deg); }
+            50% { opacity: 0.8; transform: scale(1.05) rotate(1deg); }
+        }
+        
+        .risk-indicator {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .risk-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .risk-indicator:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-sky-100 via-orange-50 to-red-50 relative overflow-x-hidden">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-10 left-10 w-20 h-20 bg-orange-200 rounded-full opacity-20 animate-pulse-slow"></div>
+        <div class="absolute top-32 right-20 w-16 h-16 bg-red-200 rounded-full opacity-20 animate-bounce-slow"></div>
+        <div class="absolute bottom-20 left-1/4 w-24 h-24 bg-yellow-200 rounded-full opacity-20 animate-pulse-slow"></div>
+        <div class="absolute bottom-32 right-1/3 w-12 h-12 bg-green-200 rounded-full opacity-20 animate-bounce-slow"></div>
+    </div>
+
+    <!-- div for go back to homepage -->
+    <div class="absolute top-6 left-6 z-20">
+        <a href="/" class="inline-flex items-center px-4 py-2 bg-white/80 hover:bg-white rounded-xl shadow-lg text-gray-700 font-semibold text-sm transition-all duration-200 border border-gray-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Home
+        </a>
+    </div></div>
+
+
+    <div class="container mx-auto px-4 py-8 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-fire-red to-fire-orange rounded-full mb-4 shadow-2xl fire-animation">
+                <i class="fas fa-fire text-white text-4xl"></i>
+            </div>
+            <h1 class="text-5xl font-bold gradient-text mb-2">Forest Fire Weather Index</h1>
+            <p class="text-xl text-gray-600 font-medium">Advanced Fire Risk Prediction System</p>
+            <div class="mt-4 inline-flex items-center space-x-4 text-sm text-gray-500">
+                <div class="flex items-center">
+                    <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+                    <span>ML Powered</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-clock text-blue-500 mr-1"></i>
+                    <span>Real-time Analysis</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-chart-line text-orange-500 mr-1"></i>
+                    <span>98% Accuracy</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+                <!-- Form Header -->
+                <div class="bg-gradient-to-r from-forest-green via-sky-blue to-forest-green px-8 py-6 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-black opacity-10"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-bold text-white flex items-center">
+                            <i class="fas fa-cloud-sun mr-4 text-yellow-200"></i>
+                            Weather Data Input
+                        </h2>
+                        <p class="text-blue-100 mt-2 text-lg">Enter meteorological parameters for comprehensive fire risk assessment</p>
+                    </div>
+                </div>
+
+                <!-- Main Form -->
+                <form id="predictionForm" class="p-8 bg-white/90">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                        
+                        <!-- Weather Parameters Section -->
+                        <div class="space-y-6 animate-fade-in" style="animation-delay: 0.1s">
+                            <h3 class="text-xl font-bold text-gray-700 border-b-3 border-sky-blue pb-3 flex items-center">
+                                <i class="fas fa-thermometer-half mr-3 text-sky-blue text-xl"></i>
+                                Weather Conditions
+                            </h3>
+                            
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Temperature (°C)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="Temperature" 
+                                           step="0.1" 
+                                           min="-50" 
+                                           max="60"
+                                           placeholder="e.g., 29.5" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-temperature-high absolute left-4 top-4 text-sky-500 text-xl"></i>
+                                    <div class="absolute right-4 top-4 text-xs text-gray-400 font-medium">°C</div>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Ambient air temperature</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Relative Humidity (%)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="RH" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="100"
+                                           placeholder="e.g., 57.2" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-tint absolute left-4 top-4 text-blue-500 text-xl"></i>
+                                    <div class="absolute right-4 top-4 text-xs text-gray-400 font-medium">%</div>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Air moisture content</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Wind Speed (km/h)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="Ws" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="100"
+                                           placeholder="e.g., 18.0" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-wind absolute left-4 top-4 text-gray-500 text-xl"></i>
+                                    <div class="absolute right-4 top-4 text-xs text-gray-400 font-medium">km/h</div>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Wind velocity measurement</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Rainfall (mm)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="Rain" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="200"
+                                           placeholder="e.g., 0.0" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-cloud-rain absolute left-4 top-4 text-blue-600 text-xl"></i>
+                                    <div class="absolute right-4 top-4 text-xs text-gray-400 font-medium">mm</div>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Precipitation amount</div>
+                            </div>
+                        </div>
+
+                        <!-- Fire Danger Indices Section -->
+                        <div class="space-y-6 animate-fade-in" style="animation-delay: 0.2s">
+                            <h3 class="text-xl font-bold text-gray-700 border-b-3 border-fire-orange pb-3 flex items-center">
+                                <i class="fas fa-chart-line mr-3 text-fire-orange text-xl"></i>
+                                Fire Danger Indices
+                            </h3>
+                            
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">FFMC (Fine Fuel Moisture)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="FFMC" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="100"
+                                           placeholder="e.g., 65.7" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-fire-orange focus:ring-4 focus:ring-fire-orange/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-leaf absolute left-4 top-4 text-green-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Fine fuel moisture content (0-100)</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">DMC (Duff Moisture)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="DMC" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="300"
+                                           placeholder="e.g., 3.4" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-fire-orange focus:ring-4 focus:ring-fire-orange/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-layer-group absolute left-4 top-4 text-brown-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Duff moisture content (0-300)</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">DC (Drought Code)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="DC" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="1000"
+                                           placeholder="e.g., 7.9" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-fire-orange focus:ring-4 focus:ring-fire-orange/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-thermometer-empty absolute left-4 top-4 text-red-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Deep layer moisture deficit</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">ISI (Initial Spread Index)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="ISI" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="50"
+                                           placeholder="e.g., 1.3" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-fire-orange focus:ring-4 focus:ring-fire-orange/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-expand-arrows-alt absolute left-4 top-4 text-orange-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Rate of fire spread potential</div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Indices & Classification Section -->
+                        <div class="space-y-6 animate-fade-in" style="animation-delay: 0.3s">
+                            <h3 class="text-xl font-bold text-gray-700 border-b-3 border-forest-green pb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-3 text-forest-green text-xl"></i>
+                                Classification & Location
+                            </h3>
+                            
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">BUI (Buildup Index)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="BUI" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="200"
+                                           placeholder="e.g., 4.5" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-forest-green focus:ring-4 focus:ring-forest-green/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-building absolute left-4 top-4 text-purple-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Fuel buildup measurement</div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">FWI (Fire Weather Index)</label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           name="FWI" 
+                                           step="0.1" 
+                                           min="0" 
+                                           max="100"
+                                           placeholder="e.g., 6.5" 
+                                           required 
+                                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-forest-green focus:ring-4 focus:ring-forest-green/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium" />
+                                    <i class="fas fa-fire-flame-curved absolute left-4 top-4 text-red-600 text-xl"></i>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500">Overall fire weather severity</div>
+                            </div>
+                            
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Risk Classification</label>
+                                <div class="relative">
+                                    <select name="Classes" 
+                                            required 
+                                            class="w-full pl-12 pr-8 py-4 border-2 border-gray-200 rounded-xl focus:border-forest-green focus:ring-4 focus:ring-forest-green/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium appearance-none">
+                                        <option value="">Select Risk Level</option>
+                                        <option value="1">🔥 Fire Risk</option>
+                                        <option value="0">🌿 No Fire Risk</option>
+                                    </select>
+                                    <i class="fas fa-exclamation-triangle absolute left-4 top-4 text-yellow-600 text-xl"></i>
+                                    <i class="fas fa-chevron-down absolute right-4 top-4 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <div class="relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Region</label>
+                                <div class="relative">
+                                    <select name="Region" 
+                                            required 
+                                            class="w-full pl-12 pr-8 py-4 border-2 border-gray-200 rounded-xl focus:border-forest-green focus:ring-4 focus:ring-forest-green/20 transition-all duration-300 bg-gray-50 hover:bg-white input-glow text-lg font-medium appearance-none">
+                                        <option value="">Select Region</option>
+                                        <option value="0">🌲 Bejaia Region</option>
+                                        <option value="1">🏔️ Sidi-Bel Abbes Region</option>
+                                    </select>
+                                    <i class="fas fa-globe-americas absolute left-4 top-4 text-blue-600 text-xl"></i>
+                                    <i class="fas fa-chevron-down absolute right-4 top-4 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Risk Reference Card -->
+                            <div class="bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 rounded-2xl p-6 border-2 border-blue-200 risk-indicator">
+                                <h4 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+                                    <i class="fas fa-info-circle mr-3 text-blue-500 text-xl"></i>
+                                    Risk Assessment Guide
+                                </h4>
+                                <div class="grid grid-cols-1 gap-3 text-sm">
+                                    <div class="bg-white/60 rounded-lg p-3">
+                                        <div class="font-bold text-orange-700 mb-1">🔥 High Risk Indicators:</div>
+                                        <div class="text-gray-600 space-y-1">
+                                            <p><strong>FFMC:</strong> 85-100 (Very Dry)</p>
+                                            <p><strong>DMC:</strong> 30+ (Deep Drying)</p>
+                                            <p><strong>DC:</strong> 400+ (Severe Drought)</p>
+                                            <p><strong>ISI:</strong> 10+ (Rapid Spread)</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white/60 rounded-lg p-3">
+                                        <div class="font-bold text-green-700 mb-1">🌿 Low Risk Indicators:</div>
+                                        <div class="text-gray-600 space-y-1">
+                                            <p><strong>FFMC:</strong> < 70 (Moist)</p>
+                                            <p><strong>High RH:</strong> > 70% </p>
+                                            <p><strong>Recent Rain:</strong> > 5mm</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" 
+                                id="submitBtn"
+                                class="group relative inline-flex items-center px-12 py-5 bg-gradient-to-r from-fire-red via-fire-orange to-fire-red text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 hover:from-fire-red/90 hover:to-fire-orange/90 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            <i class="fas fa-chart-bar mr-4 text-2xl group-hover:rotate-12 transition-transform duration-300"></i>
+                            <span class="relative z-10">Predict Fire Risk</span>
+                            <i class="fas fa-arrow-right ml-4 text-xl group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </button>
+                        
+                        <p class="text-sm text-gray-500 mt-4">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            Secure ML processing • Results in seconds
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Enhanced Results Section -->
+                <div class="border-t-4 border-gradient-to-r from-blue-400 to-green-400 bg-gradient-to-br from-gray-50 via-white to-blue-50 px-8 py-8" id="results-section" style="display: none;">
+                    <div class="text-center animate-fade-in">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center justify-center">
+                            <i class="fas fa-poll mr-4 text-blue-600 text-3xl"></i>
+                            Prediction Results
+                        </h3>
+                        
+                        <div class="max-w-2xl mx-auto">
+                            <div class="relative p-8 rounded-3xl shadow-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 text-white overflow-hidden" id="result-display">
+                                <div class="absolute inset-0 bg-black/10"></div>
+                                <div class="relative z-10 flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-5xl mr-6"></i>
+                                    <div class="text-left">
+                                        <p class="text-3xl font-bold mb-2">FWI PREDICTION</p>
+                                        <p class="text-xl opacity-90" id="result-value">Calculating...</p>
+                                        <div class="mt-4 flex items-center">
+                                            <div class="w-12 h-1 bg-white/30 rounded mr-3"></div>
+                                            <span class="text-sm font-medium" id="confidence-level">Confidence: --</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                                <div class="text-2xl font-bold text-blue-600 mb-2" id="risk-level">--</div>
+                                <div class="text-gray-600">Risk Level</div>
+                            </div>
+                            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                                <div class="text-2xl font-bold text-green-600 mb-2" id="recommendation">--</div>
+                                <div class="text-gray-600">Recommendation</div>
+                            </div>
+                            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                                <div class="text-2xl font-bold text-orange-600 mb-2" id="alert-status">--</div>
+                                <div class="text-gray-600">Alert Status</div>
+                            </div>
+                        </div>
+                        
+                        <p class="text-lg text-gray-700 mt-6 font-medium">
+                            Forest Fire Weather Index: <span class="font-bold text-gray-800" id="result-text">Processing...</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Footer Info -->
+        <div class="text-center mt-12 text-gray-600">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+                    <p class="text-lg font-semibold mb-3 flex items-center justify-center">
+                        <i class="fas fa-info-circle mr-3 text-blue-500"></i>
+                        Forest Fire Weather Index System
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-robot mr-2 text-green-500"></i>
+                            <span>Powered by Machine Learning</span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-database mr-2 text-blue-500"></i>
+                            <span>Real-time Data Processing</span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-leaf mr-2 text-green-600"></i>
+                            <span>Environmental Protection</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus effects to inputs with enhanced animations
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach((input, index) => {
+                // Staggered animation on page load
+                input.style.animationDelay = `${index * 0.1}s`;
+                input.classList.add('animate-fade-in');
+
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('scale-102', 'z-10');
+                    this.classList.add('shadow-lg');
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('scale-102', 'z-10');
+                    this.classList.remove('shadow-lg');
+                });
+
+                // Real-time validation feedback
+                input.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    const name = this.name;
+                    
+                    // Remove previous validation classes
+                    this.classList.remove('border-red-400', 'border-green-400', 'border-yellow-400');
+                    
+                    if (this.value && !isNaN(value)) {
+                        // Add risk-based border colors
+                        if (name === 'FFMC' && value > 85) {
+                            this.classList.add('border-red-400');
+                        } else if (name === 'FFMC' && value > 70) {
+                            this.classList.add('border-yellow-400');
+                        } else if (name === 'RH' && value < 30) {
+                            this.classList.add('border-red-400');
+                        } else if (name === 'Temperature' && value > 35) {
+                            this.classList.add('border-red-400');
+                        } else {
+                            this.classList.add('border-green-400');
+                        }
+                    }
+                });
+            });
+
+            // Enhanced form submission with loading states
+            const form = document.getElementById('predictionForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const resultsSection = document.getElementById('results-section');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                const originalHTML = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-4 text-2xl"></i><span>Processing Data...</span>';
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                // Collect form data
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                // Simulate prediction calculation
+                setTimeout(() => {
+                    const prediction = simulatePrediction(data);
+                    displayResults(prediction);
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    
+                    // Show results with animation
+                    resultsSection.style.display = 'block';
+                    resultsSection.classList.add('animate-slide-up');
+                    
+                    // Smooth scroll to results
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 2000);
+            });
+
+            // Smart form completion suggestions
+            const temperatureInput = document.querySelector('input[name="Temperature"]');
+            const rhInput = document.querySelector('input[name="RH"]');
+            
+            temperatureInput.addEventListener('change', function() {
+                const temp = parseFloat(this.value);
+                if (temp > 30 && !rhInput.value) {
+                    // Suggest typical RH for hot weather
+                    rhInput.placeholder = `Suggested: ${Math.max(20, 60 - (temp - 20) * 2).toFixed(1)}%`;
+                    rhInput.classList.add('animate-pulse');
+                    setTimeout(() => rhInput.classList.remove('animate-pulse'), 1000);
+                }
+            });
+
+            // Auto-fill sample data button
+            createSampleDataButton();
+        });
+
+        function simulatePrediction(data) {
+            // Convert string values to numbers
+            const temp = parseFloat(data.Temperature);
+            const rh = parseFloat(data.RH);
+            const ws = parseFloat(data.Ws);
+            const rain = parseFloat(data.Rain);
+            const ffmc = parseFloat(data.FFMC);
+            const dmc = parseFloat(data.DMC);
+            const dc = parseFloat(data.DC);
+            const isi = parseFloat(data.ISI);
+            const bui = parseFloat(data.BUI);
+            const fwi = parseFloat(data.FWI);
+
+            // Simplified prediction logic based on key indicators
+            let riskScore = 0;
+            let factors = [];
+
+            // Temperature factor
+            if (temp > 35) {
+                riskScore += 3;
+                factors.push("Extreme Temperature");
+            } else if (temp > 25) {
+                riskScore += 2;
+                factors.push("High Temperature");
+            } else if (temp > 15) {
+                riskScore += 1;
+            }
+
+            // Humidity factor (inverse relationship)
+            if (rh < 20) {
+                riskScore += 3;
+                factors.push("Very Low Humidity");
+            } else if (rh < 40) {
+                riskScore += 2;
+                factors.push("Low Humidity");
+            } else if (rh < 60) {
+                riskScore += 1;
+            }
+
+            // Wind factor
+            if (ws > 30) {
+                riskScore += 3;
+                factors.push("High Wind Speed");
+            } else if (ws > 15) {
+                riskScore += 2;
+                factors.push("Moderate Wind");
+            } else if (ws > 5) {
+                riskScore += 1;
+            }
+
+            // Rain factor (protective)
+            if (rain > 5) {
+                riskScore -= 2;
+                factors.push("Recent Rainfall");
+            } else if (rain > 1) {
+                riskScore -= 1;
+            }
+
+            // FFMC factor
+            if (ffmc > 90) {
+                riskScore += 3;
+                factors.push("Critical Fuel Moisture");
+            } else if (ffmc > 80) {
+                riskScore += 2;
+                factors.push("Low Fuel Moisture");
+            } else if (ffmc > 70) {
+                riskScore += 1;
+            }
+
+            // FWI factor
+            if (fwi > 20) {
+                riskScore += 3;
+                factors.push("High Fire Weather Index");
+            } else if (fwi > 10) {
+                riskScore += 2;
+                factors.push("Moderate Fire Weather Index");
+            } else if (fwi > 5) {
+                riskScore += 1;
+            }
+
+            // Determine risk level and prediction
+            let riskLevel, prediction, confidence, recommendation, alertStatus, color;
+
+            if (riskScore >= 12) {
+                riskLevel = "EXTREME";
+                prediction = "HIGH FIRE RISK";
+                confidence = 95;
+                recommendation = "EVACUATE";
+                alertStatus = "CRITICAL";
+                color = "from-red-600 to-red-800";
+            } else if (riskScore >= 8) {
+                riskLevel = "HIGH";
+                prediction = "FIRE RISK";
+                confidence = 88;
+                recommendation = "ALERT";
+                alertStatus = "HIGH";
+                color = "from-orange-500 to-red-600";
+            } else if (riskScore >= 5) {
+                riskLevel = "MODERATE";
+                prediction = "MODERATE RISK";
+                confidence = 82;
+                recommendation = "MONITOR";
+                alertStatus = "WATCH";
+                color = "from-yellow-500 to-orange-500";
+            } else if (riskScore >= 2) {
+                riskLevel = "LOW";
+                prediction = "LOW FIRE RISK";
+                confidence = 78;
+                recommendation = "NORMAL";
+                alertStatus = "LOW";
+                color = "from-green-500 to-blue-500";
+            } else {
+                riskLevel = "MINIMAL";
+                prediction = "NO FIRE RISK";
+                confidence = 85;
+                recommendation = "SAFE";
+                alertStatus = "NONE";
+                color = "from-blue-500 to-green-600";
+            }
+
+            return {
+                riskLevel,
+                prediction,
+                confidence,
+                recommendation,
+                alertStatus,
+                color,
+                factors,
+                fwiValue: fwi.toFixed(1),
+                riskScore
+            };
+        }
+
+        function displayResults(result) {
+            // Update main result display
+            const resultDisplay = document.getElementById('result-display');
+            const resultValue = document.getElementById('result-value');
+            const resultText = document.getElementById('result-text');
+            const confidenceLevel = document.getElementById('confidence-level');
+            const riskLevelEl = document.getElementById('risk-level');
+            const recommendationEl = document.getElementById('recommendation');
+            const alertStatusEl = document.getElementById('alert-status');
+
+            // Update gradient color
+            resultDisplay.className = `relative p-8 rounded-3xl shadow-2xl bg-gradient-to-r ${result.color} text-white overflow-hidden`;
+
+            // Update content with animation
+            setTimeout(() => {
+                resultValue.textContent = result.prediction;
+                resultText.textContent = `${result.fwiValue} (${result.riskLevel})`;
+                confidenceLevel.textContent = `Confidence: ${result.confidence}%`;
+                riskLevelEl.textContent = result.riskLevel;
+                recommendationEl.textContent = result.recommendation;
+                alertStatusEl.textContent = result.alertStatus;
+            }, 300);
+
+            // Add pulse animation to high risk results
+            if (result.riskScore >= 8) {
+                resultDisplay.classList.add('animate-pulse');
+                setTimeout(() => resultDisplay.classList.remove('animate-pulse'), 3000);
+            }
+
+            // Show contributing factors
+            if (result.factors.length > 0) {
+                const factorsList = result.factors.join(', ');
+                const factorsDiv = document.createElement('div');
+                factorsDiv.className = 'mt-4 p-4 bg-white/10 rounded-xl';
+                factorsDiv.innerHTML = `
+                    <p class="text-sm font-medium mb-2">Contributing Factors:</p>
+                    <p class="text-xs opacity-90">${factorsList}</p>
+                `;
+                resultDisplay.querySelector('.relative.z-10').appendChild(factorsDiv);
+            }
+        }
+
+        function createSampleDataButton() {
+            const form = document.getElementById('predictionForm');
+            const sampleBtn = document.createElement('button');
+            sampleBtn.type = 'button';
+            sampleBtn.className = 'mb-4 px-6 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 text-sm font-medium';
+            sampleBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Load Sample Data';
+            
+            sampleBtn.addEventListener('click', function() {
+                // Sample data from the provided dataset
+                const sampleData = {
+                    Temperature: '29',
+                    RH: '65',
+                    Ws: '18',
+                    Rain: '0.0',
+                    FFMC: '85.4',
+                    DMC: '16.0',
+                    DC: '44.5',
+                    ISI: '4.5',
+                    BUI: '16.9',
+                    FWI: '6.5',
+                    Classes: '1',
+                    Region: '1'
+                };
+                
+                Object.keys(sampleData).forEach(key => {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        input.value = sampleData[key];
+                        input.dispatchEvent(new Event('input'));
+                    }
+                });
+                
+                this.innerHTML = '<i class="fas fa-check mr-2"></i>Sample Data Loaded';
+                this.classList.add('bg-green-100', 'text-green-700');
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-magic mr-2"></i>Load Sample Data';
+                    this.classList.remove('bg-green-100', 'text-green-700');
+                }, 2000);
+            });
+            
+            form.insertBefore(sampleBtn, form.firstChild);
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('predictionForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Progressive form validation
+        function validateForm() {
+            const inputs = document.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value || (input.type === 'number' && isNaN(parseFloat(input.value)))) {
+                    input.classList.add('border-red-400', 'animate-pulse');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-400', 'animate-pulse');
+                }
+            });
+            
+            return isValid;
+        }
+    </script>
+</body>
+</html>

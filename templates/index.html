@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Weather Index | Advanced Fire Risk Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fire-red': '#DC2626',
+                        'fire-orange': '#EA580C',
+                        'fire-yellow': '#D97706',
+                        'forest-green': '#059669',
+                        'deep-green': '#064E3B',
+                        'sky-blue': '#0284C7',
+                        'ember': '#EF4444',
+                        'smoke': '#6B7280'
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out',
+                        'scale-in': 'scaleIn 0.6s ease-out',
+                        'fire-flicker': 'fireFlicker 3s ease-in-out infinite',
+                        'leaf-sway': 'leafSway 4s ease-in-out infinite',
+                        'smoke-rise': 'smokeRise 8s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-20px) rotate(5deg)' }
+                        },
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)' },
+                            '100%': { boxShadow: '0 0 40px rgba(220, 38, 38, 0.6)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(50px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        fireFlicker: {
+                            '0%, 100%': { transform: 'scale(1) rotate(-1deg)', opacity: '1' },
+                            '25%': { transform: 'scale(1.05) rotate(1deg)', opacity: '0.9' },
+                            '50%': { transform: 'scale(0.98) rotate(-0.5deg)', opacity: '0.95' },
+                            '75%': { transform: 'scale(1.02) rotate(1.5deg)', opacity: '0.85' }
+                        },
+                        leafSway: {
+                            '0%, 100%': { transform: 'rotate(-5deg)' },
+                            '50%': { transform: 'rotate(5deg)' }
+                        },
+                        smokeRise: {
+                            '0%': { transform: 'translateY(100px) translateX(0px) scale(0.8)', opacity: '0' },
+                            '10%': { opacity: '0.6' },
+                            '90%': { opacity: '0.3' },
+                            '100%': { transform: 'translateY(-100px) translateX(20px) scale(1.2)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, 
+                rgba(220, 38, 38, 0.1) 0%, 
+                rgba(234, 88, 12, 0.1) 25%, 
+                rgba(5, 150, 105, 0.1) 50%, 
+                rgba(2, 132, 199, 0.1) 75%, 
+                rgba(6, 78, 59, 0.1) 100%);
+        }
+        .glass-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #DC2626, #EA580C, #D97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .forest-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(234, 88, 12, 0.1) 0%, transparent 50%);
+        }
+        .fire-glow {
+            filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.5));
+        }
+        .navbar-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 768px) {
+            .hero-text {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+   
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative hero-gradient forest-pattern">
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-20 left-10 animate-float" style="animation-delay: 0s;">
+                <i class="fas fa-leaf text-6xl text-forest-green opacity-20 animate-leaf-sway"></i>
+            </div>
+            <div class="absolute top-32 right-20 animate-float" style="animation-delay: 2s;">
+                <i class="fas fa-tree text-8xl text-deep-green opacity-15 animate-leaf-sway"></i>
+            </div>
+            <div class="absolute bottom-20 left-1/4 animate-float" style="animation-delay: 4s;">
+                <i class="fas fa-seedling text-5xl text-forest-green opacity-25 animate-leaf-sway"></i>
+            </div>
+            <div class="absolute bottom-0 left-1/3 animate-smoke-rise" style="animation-delay: 0s;">
+                <div class="w-2 h-2 bg-smoke rounded-full opacity-30"></div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-6 py-32  text-center relative z-10">
+            <div class="max-w-5xl mx-auto">
+                <!-- Logo Animation -->
+                <div class="mb-8 animate-fade-in">
+                    <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-r from-fire-red via-fire-orange to-fire-yellow rounded-full mb-8 shadow-2xl animate-fire-flicker">
+                        <i class="fas fa-fire text-white text-6xl fire-glow"></i>
+                    </div>
+                </div>
+
+                <!-- Headings -->
+                <h1 class="hero-text text-6xl md:text-7xl font-bold mb-6 animate-slide-up text-gradient">
+                    Forest Fire Weather Index
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-700 mb-4 animate-slide-up font-light" style="animation-delay: 0.2s;">
+                    Advanced Machine Learning System for
+                </p>
+                <p class="text-2xl md:text-3xl font-semibold text-fire-red mb-8 animate-slide-up" style="animation-delay: 0.4s;">
+                    Real-Time Fire Risk Prediction
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up" style="animation-delay: 0.6s;">
+                    <a href="{{ url_for('home') }}" class="group relative px-10 py-5 bg-gradient-to-r from-fire-red via-fire-orange to-ember text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                        <span class="relative z-10 flex items-center">
+                            <i class="fas fa-rocket mr-3"></i>
+                            Start Analysis
+                            <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 animate-scale-in" style="animation-delay: 0.8s;">
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="text-4xl font-bold text-fire-red mb-2">98.4%</div>
+                        <div class="text-gray-600 font-medium">Prediction Accuracy</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="text-4xl font-bold text-forest-green mb-2">24/7</div>
+                        <div class="text-gray-600 font-medium">Real-Time Monitoring</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="text-4xl font-bold text-sky-blue mb-2">10k+</div>
+                        <div class="text-gray-600 font-medium">Areas Protected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce cursor-pointer"
+             onclick="document.getElementById('prediction').scrollIntoView({behavior: 'smooth'})">
+            <i class="fas fa-chevron-down text-3xl text-gray-400"></i>
+        </div>
+    </section>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div class="w-20 h-20 bg-gradient-to-r from-fire-red to-fire-orange rounded-full flex items-center justify-center animate-fire-flicker shadow-lg">
+                <i class="fas fa-fire text-white text-3xl fire-glow"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800">Loading FFWI System</h2>
+            <div class="flex space-x-2">
+                <div class="w-2.5 h-2.5 bg-fire-red rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                <div class="w-2.5 h-2.5 bg-fire-orange rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
+                <div class="w-2.5 h-2.5 bg-fire-yellow rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimal Script (Keeps loading screen and basic interactivity) -->
+    <script>
+        window.addEventListener('load', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.pointerEvents = 'none';
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
