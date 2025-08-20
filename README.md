@@ -212,7 +212,6 @@ matplotlib==3.7.2
 
 ## 📸 Screenshots (Optional)
 
-> *Add screenshots of your app here when available.*
 
 ![App Screenshot Placeholder](SystemUi/Predictionpage.png)
 ---
